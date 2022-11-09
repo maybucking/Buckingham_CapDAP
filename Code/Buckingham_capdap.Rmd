@@ -18,31 +18,39 @@ Now lets import the data
 kestrels <- read.csv(here("Data", "AMKE DATA TABLE 1.csv"))
 ```
 Now lets analyze the data
-First lets do a summary
+First lets do a summary of all of the data to look at means and spread of data
 ```{r}
 summary(kestrels)
 ```
-Now lets look at a scatterplot of the percent successful boxes to see if there are any outliers
+Now lets look at a scatterplot of the percent successful boxes to see if there are any outliers and to get a general sense of the relationship between box number (x) and percent success (y)
 ```{r}
 ggplot(kestrels, aes(x = BOX, y = X.Successful)) + geom_point(size =1)+
 xlab("Box Number") +
 ylab("% Success")
 ```
-Does not look like there are too many outliers
+Does not look like there are too many outliers, data looks pretty uniform
 
+Now lets look at a scatterplot of the relationship between number of chicks banded (y) and box number (x)
 ```{r}
 ggplot(kestrels, aes(x = BOX, y = Num_Chicks_Banded)) + geom_point(size =1)+
 xlab("Box Number") +
 ylab("Chicks banded")
 ```
-Looks like there could be an outlier lets look at chicks banded stats
+Looks like there could be an outlier around the 10th box (close to 30 chicks banded) 
 
-Now lets create a histogram of the percent success
+Now lets create a histogram of the percent success so we can see the data in a different format and not in relation to box number.
 ```{r}
 ggplot(kestrels, aes(x = X.Successful)) + geom_histogram(bins = 10)+
   xlab("Percent Success")
 ```
-There is a gap around 10%
+There is a gap around 10% 
+
+looking at unique characters but i dont think this is very useful to me.
+```{r}
+unique(kestrels)
+```
+
+
 
 
 
