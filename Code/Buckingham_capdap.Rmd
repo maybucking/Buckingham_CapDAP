@@ -1,0 +1,49 @@
+---
+title: "Data Analyses"
+author: "May"
+date: "11/8/2022"
+output: html_document
+---
+Let's analyze the American Kestrel Dataset!
+
+First, lets clear r's brain and add packages
+```{r}
+rm(list = ls())
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+Now lets import the data
+```{r}
+kestrels <- read.csv(here("Data", "AMKE DATA TABLE 1.csv"))
+```
+Now lets analyze the data
+First lets do a summary
+```{r}
+summary(kestrels)
+```
+Now lets look at a scatterplot of the percent successful boxes to see if there are any outliers
+```{r}
+ggplot(kestrels, aes(x = BOX, y = X.Successful)) + geom_point(size =1)+
+xlab("Box Number") +
+ylab("% Success")
+```
+Does not look like there are too many outliers
+
+```{r}
+ggplot(kestrels, aes(x = BOX, y = Num_Chicks_Banded)) + geom_point(size =1)+
+xlab("Box Number") +
+ylab("Chicks banded")
+```
+Looks like there could be an outlier lets look at chicks banded stats
+
+Now lets create a histogram of the percent success
+```{r}
+ggplot(kestrels, aes(x = X.Successful)) + geom_histogram(bins = 10)+
+  xlab("Percent Success")
+```
+There is a gap around 10%
+
+
+
+
