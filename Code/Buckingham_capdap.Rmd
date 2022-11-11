@@ -9,6 +9,7 @@ Let's analyze the American Kestrel Dataset!
 First, lets clear r's brain and add packages
 ```{r}
 rm(list = ls())
+library(tidyverse)
 library(dplyr)
 library(ggplot2)
 library(here)
@@ -49,6 +50,23 @@ looking at unique characters but i dont think this is very useful to me.
 ```{r}
 unique(kestrels)
 ```
+```{r}
+kestrels_long <- pivot_longer(kestrels, cols = X2002_inhabitants:X2013_inhabitants, names_to = "year", values_to = "inhabitants")
+```
+
+lets get rid of X with string R
+```{r}
+kestrels_long1 <-str_replace(kestrels_long$year, "X", "")
+
+kestrels_long$newYear <- kestrels_long1
+view(kestrels_long)
+```
+Now save the data frame
+```{r}
+write.csv(kestrels_long, here("Data", "processed", "Correct_kestrelsX"))
+write.csv(kestrels_long, here("Data", "processed", "Correct_kestrels"), row.names = FALSE)
+```
+
 
 
 
