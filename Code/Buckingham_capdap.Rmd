@@ -54,19 +54,62 @@ unique(kestrels)
 kestrels_long <- pivot_longer(kestrels, cols = X2002_inhabitants:X2013_inhabitants, names_to = "year", values_to = "inhabitants")
 ```
 
-lets get rid of X with string R
+lets get rid of X and _inhabitants with string R to tidy up the data:
 ```{r}
 kestrels_long1 <-str_replace(kestrels_long$year, "X", "")
 
 kestrels_long$newYear <- kestrels_long1
 view(kestrels_long)
 ```
+```{r}
+kestrels_long <- select(kestrels_long, - year)
+```
+```{r}
+kestrels_long1 <- str_replace(kestrels_long$newYear, "_inhabitants", "")
+kestrels_long$Year <- kestrels_long1
+view(kestrels_long)
+```
+```{r}
+kestrels_long <- select(kestrels_long, -newYear)
+view(kestrels_long)
+```
+
+Tidy up inhabitants variable values so that they are uniform
+```{r}
+EMPTY <-which(kestrels_long$inhabitants == "EMPTY" | kestrels_long$inhabitants == "Empty" | kestrels_long$inhabitants == "empty" | kestrels_long$inhabitants == "FAILED" | kestrels_long$inhabitants == "failed" | kestrels_long$inhabitants == "Failed" | kestrels_long$inhabitants == "FAIL")
+kestrels_long$inhabitants[EMPTY] <- "EMPTY"
+```
+```{r}
+GRACKLE <-which(kestrels_long$inhabitants == "GRACKLE" | kestrels_long$inhabitants == "Grackle" | kestrels_long$inhabitants == "grackle" | kestrels_long$inhabitants == "GRACKLES" | kestrels_long$inhabitants == "Grackles" | kestrels_long$inhabitants == "grackles")
+kestrels_long$inhabitants[GRACKLE] <- "GRACKLE"
+```
+```{r}
+TREESWALLOW <-which(kestrels_long$inhabitants == "Tree Swallows" | kestrels_long$inhabitants == "TREE SWALLOW" )
+kestrels_long$inhabitants[TREESWALLOW] <- "TREESWALLOW"
+```
+```{r}
+STARLING <-which(kestrels_long$inhabitants == "STARLING" | kestrels_long$inhabitants == "STARLINGS" | kestrels_long$inhabitants == "Starling" | kestrels_long$inhabitants == "Starlings" | kestrels_long$inhabitants == "starlings" | kestrels_long$inhabitants == "starling")
+kestrels_long$inhabitants[STARLING] <- "STARLING"
+```
+```{r}
+INSECTS <-which(kestrels_long$inhabitants == "BEES" | kestrels_long$inhabitants == "Bees" | kestrels_long$inhabitants == "bees" | kestrels_long$inhabitants == "ANTS" | kestrels_long$inhabitants == "Ants" | kestrels_long$inhabitants == "ants")
+kestrels_long$inhabitants[INSECTS] <- "INSECTS"
+```
+
+
+
+
+
 Now save the data frame
 ```{r}
 write.csv(kestrels_long, here("Data", "processed", "Correct_kestrelsX"))
 write.csv(kestrels_long, here("Data", "processed", "Correct_kestrels"), row.names = FALSE)
 ```
 
+
+```{r}
+library(lubridate)
+```
 
 
 
