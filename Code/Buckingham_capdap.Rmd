@@ -78,27 +78,74 @@ Tidy up inhabitants variable values so that they are uniform
 ```{r}
 EMPTY <-which(kestrels_long$inhabitants == "EMPTY" | kestrels_long$inhabitants == "Empty" | kestrels_long$inhabitants == "empty" | kestrels_long$inhabitants == "FAILED" | kestrels_long$inhabitants == "failed" | kestrels_long$inhabitants == "Failed" | kestrels_long$inhabitants == "FAIL")
 kestrels_long$inhabitants[EMPTY] <- "EMPTY"
+view(kestrels_long)
 ```
 ```{r}
 GRACKLE <-which(kestrels_long$inhabitants == "GRACKLE" | kestrels_long$inhabitants == "Grackle" | kestrels_long$inhabitants == "grackle" | kestrels_long$inhabitants == "GRACKLES" | kestrels_long$inhabitants == "Grackles" | kestrels_long$inhabitants == "grackles")
 kestrels_long$inhabitants[GRACKLE] <- "GRACKLE"
+view(kestrels_long)
 ```
 ```{r}
 TREESWALLOW <-which(kestrels_long$inhabitants == "Tree Swallows" | kestrels_long$inhabitants == "TREE SWALLOW" )
 kestrels_long$inhabitants[TREESWALLOW] <- "TREESWALLOW"
+view(kestrels_long)
 ```
 ```{r}
 STARLING <-which(kestrels_long$inhabitants == "STARLING" | kestrels_long$inhabitants == "STARLINGS" | kestrels_long$inhabitants == "Starling" | kestrels_long$inhabitants == "Starlings" | kestrels_long$inhabitants == "starlings" | kestrels_long$inhabitants == "starling")
 kestrels_long$inhabitants[STARLING] <- "STARLING"
+view(kestrels_long)
 ```
 ```{r}
 INSECTS <-which(kestrels_long$inhabitants == "BEES" | kestrels_long$inhabitants == "Bees" | kestrels_long$inhabitants == "bees" | kestrels_long$inhabitants == "ANTS" | kestrels_long$inhabitants == "Ants" | kestrels_long$inhabitants == "ants")
 kestrels_long$inhabitants[INSECTS] <- "INSECTS"
+view(kestrels_long)
 ```
 
+```{r}
+KESTRELS <-which(kestrels_long$inhabitants == "KESTRELS" | kestrels_long$inhabitants == "Kestrels" | kestrels_long$inhabitants == "KESTREL" | kestrels_long$inhabitants == "FLEDGED" | kestrels_long$inhabitants == "Fledged" | kestrels_long$inhabitants == "fledged" | kestrels_long$inhabitants == "kestrels" )
+kestrels_long$inhabitants[KESTRELS] <- "KESTRELS"
+```
+filter the data
+```{r}
+kestrels_long2 <- filter(kestrels_long, inhabitants == "KESTRELS" | inhabitants == "INSECTS" | inhabitants == "STARLING" | inhabitants == "TREESWALLOW" | inhabitants == "GRACKLE" | inhabitants == "EMPTY")
+```
 
+```{r}
+kestrels_long2$inhabitants <- as.factor(kestrels_long2$inhabitants)
+```
 
+```{r}
+ggplot(kestrels_long2, aes(inhabitants, X.Successful)) + 
+  geom_boxplot()+
+  geom_point()
+```
 
+```{r}
+
+myMod <-lm(X.Successful ~ inhabitants, data = kestrels_long2)
+
+```
+```{r}
+library(ggfortify)
+```
+
+```{r}
+
+autoplot(myMod, smooth.color = NA)
+
+```
+
+```{r}
+anova(myMod)
+```
+```{r}
+summary(myMod)
+```
+```{r}
+ggplot(kestrels_long2, aes(inhabitants, X.Successful)) + 
+  geom_boxplot()+
+  geom_point()
+```
 
 Now save the data frame
 ```{r}
