@@ -114,37 +114,50 @@ kestrels_long2 <- filter(kestrels_long, inhabitants == "KESTRELS" | inhabitants 
 kestrels_long2$inhabitants <- as.factor(kestrels_long2$inhabitants)
 ```
 
+Lets look at the relationship between inhabitants and success rate
+First lets plot the data
 ```{r}
 ggplot(kestrels_long2, aes(inhabitants, X.Successful)) + 
   geom_boxplot()+
   geom_point()
 ```
-
+Now we will set up out one-way ANOVA model (make a linear model) using lm()
 ```{r}
-
 myMod <-lm(X.Successful ~ inhabitants, data = kestrels_long2)
-
 ```
+add package ggfortify
 ```{r}
 library(ggfortify)
 ```
-
+lets check out assumptions
 ```{r}
-
 autoplot(myMod, smooth.color = NA)
-
 ```
-
+Normal distribution on top right
+Now lets interpret our model (anova gives anova table Does Not Run anova)
 ```{r}
 anova(myMod)
 ```
+We can reject null an say inhabitants significantly impact success rate
+Now look at contrasts
 ```{r}
 summary(myMod)
 ```
+I think a box plot is the best way to represent the data
 ```{r}
 ggplot(kestrels_long2, aes(inhabitants, X.Successful)) + 
   geom_boxplot()+
   geom_point()
+```
+
+Now lets look at the relationship between number of chicks banded and nest box success
+For this relationship, my hypothesis is that there will be a higher percent success for the boxes with a higher total number of chicks banded.
+
+First we'll plot the data
+```{r}
+ggplot(kestrels, aes(x = Num_Chicks_Banded, y = X.Successful)) + geom_point(size =1)+
+xlab("Number of Chicks Banded") +
+ylab("Success Rate")
 ```
 
 Now save the data frame
