@@ -29,7 +29,11 @@ ggplot(kestrels, aes(x = BOX, y = X.Successful)) + geom_point(size =1)+
 xlab("Box Number") +
 ylab("% Success")
 ```
+Really, your box number should be a categorical and not a numeric variable. The number is really just the "name" for each box and does not contain quantitative information. 
+
 Does not look like there are too many outliers, data looks pretty uniform
+
+What are you looking for? What is the relationship you expect to see (for example, since it is % success, numbers should range b/w 0 and 100)
 
 Now lets look at a scatterplot of the relationship between number of chicks banded (y) and box number (x)
 ```{r}
@@ -39,17 +43,25 @@ ylab("Chicks banded")
 ```
 Looks like there could be an outlier around the 10th box (close to 30 chicks banded) 
 
+Ok - what are you going to do about it?
+
 Now lets create a histogram of the percent success so we can see the data in a different format and not in relation to box number.
 ```{r}
 ggplot(kestrels, aes(x = X.Successful)) + geom_histogram(bins = 10)+
   xlab("Percent Success")
 ```
+Notice that you have a lot of zeros. This is common in biological data and we may need to address it, depending on what statistical test you decide to run.
+
 There is a gap around 10% 
 
 looking at unique characters but i dont think this is very useful to me.
 ```{r}
 unique(kestrels)
 ```
+What is the reason for doing this? If you want to run unique() on specific variables (for instance, factors) it can be helpful.
+
+
+Why did you do this next step? I'd like to know your thought process.
 ```{r}
 kestrels_long <- pivot_longer(kestrels, cols = X2002_inhabitants:X2013_inhabitants, names_to = "year", values_to = "inhabitants")
 ```
@@ -75,11 +87,16 @@ view(kestrels_long)
 ```
 
 Tidy up inhabitants variable values so that they are uniform
+
+How did you determine all the versions of EMPTY? I'd like to see it in your code so that you aren't relying on a manual step.
+
 ```{r}
 EMPTY <-which(kestrels_long$inhabitants == "EMPTY" | kestrels_long$inhabitants == "Empty" | kestrels_long$inhabitants == "empty" | kestrels_long$inhabitants == "FAILED" | kestrels_long$inhabitants == "failed" | kestrels_long$inhabitants == "Failed" | kestrels_long$inhabitants == "FAIL")
 kestrels_long$inhabitants[EMPTY] <- "EMPTY"
 view(kestrels_long)
 ```
+These are very good steps to be taking with  your data!
+
 ```{r}
 GRACKLE <-which(kestrels_long$inhabitants == "GRACKLE" | kestrels_long$inhabitants == "Grackle" | kestrels_long$inhabitants == "grackle" | kestrels_long$inhabitants == "GRACKLES" | kestrels_long$inhabitants == "Grackles" | kestrels_long$inhabitants == "grackles")
 kestrels_long$inhabitants[GRACKLE] <- "GRACKLE"
@@ -106,6 +123,10 @@ KESTRELS <-which(kestrels_long$inhabitants == "KESTRELS" | kestrels_long$inhabit
 kestrels_long$inhabitants[KESTRELS] <- "KESTRELS"
 ```
 filter the data
+
+It would be nice to know, near the top of this .Rmd file, what the reason is that you are isolating to just these inhabitants. Since I don't know your question, it is difficult to understand why.
+
+Also, it is not clear why you didn't do any exploration of the with_chicks, w.o_chicks, Total, or Years.Up variables.
 ```{r}
 kestrels_long2 <- filter(kestrels_long, inhabitants == "KESTRELS" | inhabitants == "INSECTS" | inhabitants == "STARLING" | inhabitants == "TREESWALLOW" | inhabitants == "GRACKLE" | inhabitants == "EMPTY")
 ```
@@ -121,6 +142,18 @@ ggplot(kestrels_long2, aes(inhabitants, X.Successful)) +
   geom_boxplot()+
   geom_point()
 ```
+This doesn't make sense to me. Since these are kestrel boxes, how does having grackles or insects etc have anything to do with whether there were kestrels fledged? Because the success rate, as far as I can tell, is the total number of kestrel chicks divided by the number of years the nest box was up. 
+
+I think it might really help you to spend some time with pencil and paper and think about what relationships you're really interested in and then figure out how to manipulate the data to ask.
+
+You could, for example, think about what is the mean success rate for kestrels in different years?
+
+Or how long does a nest box need to be up before it starts yielding kestrel chicks?
+
+Or whether boxes that do yield kestrels vs. those that never do differ in what other species inhabit the boxes (but if you did that, you shouldn't filter the data and remove all the other species)
+
+Or maybe whether there is a relationship b/w how long a nest box is up and the % success rate?
+
 Now we will set up out one-way ANOVA model (make a linear model) using lm()
 ```{r}
 myMod <-lm(X.Successful ~ inhabitants, data = kestrels_long2)
@@ -143,6 +176,7 @@ Now look at contrasts
 ```{r}
 summary(myMod)
 ```
+If you stick with this analysis (but I don't think you should), you may wish to make Kestrels the comparison for the contrasts by setting the levels.
 I think a box plot is the best way to represent the data
 ```{r}
 ggplot(kestrels_long2, aes(inhabitants, X.Successful)) + 
@@ -151,7 +185,10 @@ ggplot(kestrels_long2, aes(inhabitants, X.Successful)) +
 ```
 
 Now lets look at the relationship between number of chicks banded and nest box success
+
 For this relationship, my hypothesis is that there will be a higher percent success for the boxes with a higher total number of chicks banded.
+
+Ok - this doesn't make sense to me either - only boxes that have success will have chicks banded (you can't band chicks in a nest box that fails) and the more successful the box, the more chicks, and therefore the more that you can band. So it can only be true that there will be a higher percent success in boxes with a higher total number of chicks banded.
 
 First we'll plot the data
 ```{r}
