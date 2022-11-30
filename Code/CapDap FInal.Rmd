@@ -1,9 +1,10 @@
 ---
-title: "Data Analyses"
+title: "Cap_Dap_Final"
 author: "May"
-date: "11/8/2022"
+date: "11/27/2022"
 output: html_document
 ---
+
 Let's analyze the American Kestrel Dataset!
 
 First, lets clear r's brain and add packages
@@ -32,7 +33,7 @@ ylab("% Success")
 Really, your box number should be a categorical and not a numeric variable. The number is really just the "name" for each box and does not contain quantitative information. 
 
 Does not look like there are too many outliers, data looks pretty uniform
-
+#Edit - Meaning that there
 What are you looking for? What is the relationship you expect to see (for example, since it is % success, numbers should range b/w 0 and 100)
 
 Now lets look at a scatterplot of the relationship between number of chicks banded (y) and box number (x)
@@ -55,13 +56,10 @@ Notice that you have a lot of zeros. This is common in biological data and we ma
 There is a gap around 10% 
 
 looking at unique characters but i dont think this is very useful to me.
-```{r}
-unique(kestrels)
-```
-What is the reason for doing this? If you want to run unique() on specific variables (for instance, factors) it can be helpful.
 
 
-Why did you do this next step? I'd like to know your thought process.
+Why did you do this next step? I'd like to know your thought process. #We did this during class to change the columns to a single row
+
 ```{r}
 kestrels_long <- pivot_longer(kestrels, cols = X2002_inhabitants:X2013_inhabitants, names_to = "year", values_to = "inhabitants")
 ```
@@ -130,6 +128,7 @@ Also, it is not clear why you didn't do any exploration of the with_chicks, w.o_
 ```{r}
 kestrels_long2 <- filter(kestrels_long, inhabitants == "KESTRELS" | inhabitants == "INSECTS" | inhabitants == "STARLING" | inhabitants == "TREESWALLOW" | inhabitants == "GRACKLE" | inhabitants == "EMPTY")
 ```
+There are a lot of rows of data so I chose these inhabitants as im not really looking deeply into exactly what each box inhabited only the ones with kestrels really 
 
 ```{r}
 kestrels_long2$inhabitants <- as.factor(kestrels_long2$inhabitants)
@@ -146,13 +145,13 @@ This doesn't make sense to me. Since these are kestrel boxes, how does having gr
 
 I think it might really help you to spend some time with pencil and paper and think about what relationships you're really interested in and then figure out how to manipulate the data to ask.
 
-*You could, for example, think about what is the mean success rate for kestrels in different years?
+You could, for example, think about what is the mean success rate for kestrels in different years?
 
-*Or how long does a nest box need to be up before it starts yielding kestrel chicks?
+Or how long does a nest box need to be up before it starts yielding kestrel chicks?
 
 Or whether boxes that do yield kestrels vs. those that never do differ in what other species inhabit the boxes (but if you did that, you shouldn't filter the data and remove all the other species)
 
-*Or maybe whether there is a relationship b/w how long a nest box is up and the % success rate?
+Or maybe whether there is a relationship b/w how long a nest box is up and the % success rate?
 
 Now we will set up out one-way ANOVA model (make a linear model) using lm()
 ```{r}
