@@ -1,12 +1,12 @@
 ---
-title: "Cap Dap presentation"
+title: "Cap Dap Presentation"
 author: "May Buckingham"
 date: "11/27/2022"
 output: html_document
 ---
 
 # Overview
-Here are the three hypothesis that I would like to explore for my data analysis capstone project
+Here are the three hypotheses that I would like to explore for my data analysis capstone project.
 
 1. I would like to look at the relationship between nest box success rate for kestrels and years that the box is up. I would hypothesize that boxes with more years up would have a higher nest box success rate for kestrels because there would be a longer period of time available for kestrels to nest in the box. Since there would be more time for kestrels to nest, they would have a better chance at successfully fledging. 
 
