@@ -1,0 +1,279 @@
+---
+title: "Cap_Dap_Presentation"
+author: "May"
+date: "12/13/2022"
+output: html_document
+---
+
+
+# Overview
+
+Here are the three hypotheses that I would like to explore for my data analysis capstone project.
+
+1. I would like to look at the relationship between nest box success rate for kestrels and years that the box is up. I would hypothesize that boxes with more years up would have a higher nest box success rate for kestrels because there would be a longer period of time available for kestrels to nest in the box. Since there would be more time for kestrels to nest, they would have a better chance at successfully fledging. 
+
+ 
+2. I'd like to explore how many years a nest box needs to be up before it would start to yield kestrel chicks. I believe that the number of years a nest box would need to be up before yielding chicks would be possibly around 3-4 years because that would give the kestrels enough time to find and recognize the nest box as a shelter option. Newer nest boxes might have less kestrel chicks because it may be harder for kestrels to find newer boxes. 
+
+3. I would like to look at the mean success rate for each box and find out if certain boxes have higher success rates. I would hypothesize that certain boxes might have higher success rates due to box location or how many years up, etc. 
+
+### Analyzing American Kestrel Nest Box Success
+
+This data set contains data collected by Kealey Viglielmo for a study on American Kestrel nesting box success by Susan Willson, James R. Chandler, Carol Cady, and Mark Manske. The specific data set that I am using contains data of 154 nesting boxes from the years 2002 to 2013. The data contains the number of years the box is up, percent nest success, number of chicks banded, and box inhabitants. 
+
+ 
+``````{r setup, include=FALSE}
+rm(list = ls())
+
+library(tidyverse)
+
+library(dplyr)
+
+library(ggplot2)
+
+library(here)
+
+```
+
+```{r, include=FALSE}
+kestrels <- read.csv(here("Data", "AMKE DATA TABLE 1.csv"))
+
+```
+
+First lets do a summary of all of the data 
+
+```{r}
+summary(kestrels)
+```
+
+## Tidying up the data
+
+Lets pivot the years from separate columns into one long column using pivot_longer
+
+```{r}
+kestrels_long <- pivot_longer(kestrels, cols = X2002_inhabitants:X2013_inhabitants, names_to = "year", values_to = "inhabitants")
+
+```
+
+lets get rid of X and _inhabitants with string R to tidy up the data:
+
+ 
+```{r}
+
+ 
+kestrels_long1 <-str_replace(kestrels_long$year, "X", "")
+
+kestrels_long$newYear <- kestrels_long1
+
+view(kestrels_long)
+
+```
+ 
+```{r}
+kestrels_long <- select(kestrels_long, - year)
+```
+
+```{r}
+kestrels_long1 <- str_replace(kestrels_long$newYear, "_inhabitants", "")
+kestrels_long$Year <- kestrels_long1
+view(kestrels_long)
+```
+
+ 
+```{r}
+
+kestrels_long <- select(kestrels_long, -newYear)
+
+view(kestrels_long)
+
+```
+
+## Exploring the years up of a nest box and the percent success rate.
+
+I would hypothesize that the longer the nest box is up the box will have a higher the percent success rate because there is more time for the box to house kestrels that will fledge.
+
+Lets analyze this by making a linear regression model
+
+Lets make an initial plot
+
+```{r}
+
+ggplot(kestrels_long, aes(Years.Up, X.Successful)) + 
+
+  geom_point()+
+
+  xlab("Years Up")+
+
+  ylab("Percent Successful")
+
+```
+ 
+Based on this graph it appears that boxes with more years up have a higher percent success rate 
+
+Lets analyze this by making a linear regression model
+
+```{r}
+
+lmNewData <-lm(X.Successful ~ as.numeric(Years.Up), data = kestrels_long)
+
+```
+
+View the Summary
+
+```{r}
+
+summary(lmNewData)
+
+```
+
+The results of the summary show that there is a p-value of 3.511e-05 meaning that there is a significant correlation between Years Up and Success rate. The summary also shows that the estimated y - intercept is 36.5 % and would increase by 1.289 % each additional year. This supports that the years up and percent success rate has a positive correlation.
+
+Final plot
+
+```{r}
+
+plot(X.Successful ~ as.numeric(Years.Up), data= kestrels_long, xlab = "Years Up", ylab = "Percent Successful")+
+
+abline(lmNewData) 
+
+```
+
+This figure shows the linear regression model for the relationship between Percent Successful and Years Up. It shows that the values are not normally distributed along the linear best fit line, however there is a significant relationship between Percent Successful and Years Up. This is supported by the linear regression model.
+
+## Exploring Years Up vs Number of Chicks Banded
+
+Does the amount of years a nest box is up impact the likelihood of the chicks being present in the nest box?
+
+Generate a scatter plot to look at the initial relationship between the variables.
+
+```{r}
+
+ggplot(kestrels_long, aes(x = Years.Up, y = Num_Chicks_Banded)) + geom_point(size =2)+
+
+xlab("Years Up") +
+
+ylab("Number of Chicks Banded")
+
+```
+
+Based on this figure I would assume that the more years up a box has the more chicks banded.
+
+To analyze this relationship we will use a chi-square test.
+
+First I need to make the number of chicks binary (present or not present) using if_else.
+
+```{r}
+
+chicks_df <- kestrels_long %>%
+
+  mutate(chicks_present = if_else(Num_Chicks_Banded > 0, true = 1, false = 0))
+
+```
+
+Creating a table to show this
+124
+ 
+```{r}
+
+chicks_tab <- xtabs(chicks_present ~ Years.Up, data = chicks_df)
+
+chicks_tab
+
+```
+
+
+```{r}
+
+chisq.test(chicks_tab)
+
+```
+
+This test shows that there is a significant correlation between years up and chicks present (p-value = <2.2e-16). 
+
+To plot this I will create a new data set called plot_chicks
+
+```{r}
+
+plot_chicks <- chicks_df %>%
+
+  group_by(chicks_present, Years.Up) %>%
+
+  summarise(Count = n()) 
+
+plot_chicks
+
+```
+
+Then create a bar graph
+
+```{r}
+
+ggplot(plot_chicks, aes(x = Years.Up, y = Count, fill = chicks_present)) +
+ 
+   geom_col(position = "dodge") 
+
+```
+
+This figure shows the count of chicks present and chicks not present for each box with a certain amount of years up. The boxes with more years up obviously show more chicks present counts and no chick not present counts.
+
+## Exploring success rate and box number
+
+Does the box number have any impact on mean success rate?
+
+The first step is to see the initial graph of the data
+ 
+```{r}
+
+ggplot(kestrels_long, aes(BOX, X.Successful)) + 
+ 
+  geom_point()
+ 
+```
+
+The data points do not look like they show any correlation between mean success rate and box number
+ 
+I will analyze this relationship using an ANOVA test
+
+First I need to find the mean success rate for each box number
+
+```{r}
+
+SuccessYearDF <- kestrels_long %>%
+
+group_by(BOX) %>%
+
+summarise(mean_success = mean(na.omit(X.Successful)))
+
+SuccessYearDF
+
+```
+
+Then I need to make a linear model of the mean success rate and box number
+
+```{r}
+
+mod_box <- lm(mean_success ~ BOX, data = SuccessYearDF)
+
+```
+
+Then run the anova
+
+```{r}
+
+anova(mod_box)
+
+```
+
+According to the ANOVA test, the p value is 0.1517 so there is no significant correlation between box number and success rate. So if a box is more successful that has to do with other factors like years up, location, etc.
+
+I will plot this as a scatter plot and add a line of best fit 
+ 
+```{r}
+
+ggplot(SuccessYearDF, aes(x = BOX, y = mean_success))+
+
+  geom_point()+
+
+  geom_smooth(method = "lm", se = FALSE)
+
+```
