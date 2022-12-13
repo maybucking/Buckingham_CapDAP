@@ -1,0 +1,242 @@
+---
+title: "Cap Dap Final"
+author: "May Buckingham"
+date: "11/27/2022"
+output: html_document
+---
+
+# Overview
+Here are the three hypotheses that I would like to explore for my data analysis capstone project.
+
+1. I would like to look at the relationship between nest box success rate for kestrels and years that the box is up. I would hypothesize that boxes with more years up would have a higher nest box success rate for kestrels because there would be a longer period of time available for kestrels to nest in the box. Since there would be more time for kestrels to nest, they would have a better chance at successfully fledging. 
+
+2. I'd like to explore how many years a nest box needs to be up before it would start to yield kestrel chicks. I believe that the number of years a nest box would need to be up before yielding chicks would be possibly around 3-4 years because that would give the kestrels enough time to find and recognize the nest box as a shelter option. Newer nest boxes might have less kestrel chicks because it may be harder for kestrels to find newer boxes. 
+
+3. I would like to look at the relationship between number of chicks banded and success rate for the nest boxes. My question is does higher number of chicks banded result in a higher success rate for the boxes? I would hypothesize that nest boxes with a higher number of chicks banded would result in a higher success rate for the boxes.
+
+### Analyzing American Kestrel Nest Box Success
+
+This data set contains data collected by Kealey Viglielmo for a study on American Kestrel nesting box success by Susan Willson, James R. Chandler, Carol Cady, and Mark Manske. The specific data set that I am using contains data of 154 nesting boxes from the years 2002 to 2013. The data contains the number of years the box is up, percent nest success, number of chicks banded, and box inhabitants. 
+
+
+First step is importing packages and clearing R's brain.
+``````{r setup, include=FALSE}
+rm(list = ls())
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(here)
+```
+
+Then importing the data set I will be using.
+```{r, include=FALSE}
+kestrels <- read.csv(here("Data", "AMKE DATA TABLE 1.csv"))
+```
+
+
+Lets do a summary of all of the data to get an overview of the data and to see what we might have to fix.
+```{r}
+summary(kestrels)
+```
+## Tidying up the data
+
+Lets pivot the years from separate columns into one long column using pivot_longer.
+```{r}
+kestrels_long <- pivot_longer(kestrels, cols = X2002_inhabitants:X2013_inhabitants, names_to = "year", values_to = "inhabitants")
+```
+
+lets get rid of X and _inhabitants with string R to tidy up the data:
+```{r}
+kestrels_long1 <-str_replace(kestrels_long$year, "X", "")
+
+kestrels_long$newYear <- kestrels_long1
+view(kestrels_long)
+```
+```{r}
+kestrels_long <- select(kestrels_long, - year)
+```
+```{r}
+kestrels_long1 <- str_replace(kestrels_long$newYear, "_inhabitants", "")
+kestrels_long$Year <- kestrels_long1
+view(kestrels_long)
+```
+```{r}
+kestrels_long <- select(kestrels_long, -newYear)
+view(kestrels_long)
+```
+
+Tidy up kestrel variable in inhabitants column.
+```{r}
+Kestrels <-which(kestrels_long$inhabitants == "KESTRELS" | kestrels_long$inhabitants == "Kestrels" | kestrels_long$inhabitants == "KESTREL" | kestrels_long$inhabitants == "FLEDGED" | kestrels_long$inhabitants == "Fledged" | kestrels_long$inhabitants == "fledged" | kestrels_long$inhabitants == "kestrels" )
+kestrels_long$inhabitants[Kestrels] <- "KESTRELS"
+View(kestrels_long)
+```
+
+Then I will create a new data set that contains only the data that has Kestrels in the inhabitants variable.
+```{r}
+kestrel_filter <- filter(kestrels_long, inhabitants == "KESTRELS")
+View(kestrel_filter)
+```
+
+Then I will create a new data set that groups the data by the nest box number.
+```{r}
+Kestrel_summary <- kestrel_filter %>%
+  group_by(BOX) %>%
+  summarise(
+    Years.Up = max(Years.Up), 
+    Success = max(X.Successful),
+    Chicks = max(with_chicks))
+```
+
+Then change BOX to a factor because the box number is the identity of the box, not a continuous variable.
+```{r}
+Kestrel_summary$BOX <- as.factor(Kestrel_summary$BOX)
+```
+
+
+# Hypothesis #1
+
+## Exploring the years up of a nest box and the percent success rate.
+
+
+I would hypothesize that the longer the nest box is up the box will have a higher the percent success rate because there is more time for the box to house kestrels that will fledge.
+
+Lets analyze this by making a linear regression model
+
+Lets make some initial plots to look at the data displayed.
+```{r}
+ggplot(Kestrel_summary, aes(Success))+
+  geom_histogram()
+```
+
+```{r}
+ggplot(Kestrel_summary, aes(Years.Up, Success)) + 
+  geom_point()+
+  xlab("Years Up")+
+  ylab("Percent Successful")
+```
+Based on these graphs it appears that boxes with more years up have a higher percent success rate.
+
+
+Lets analyze this by making a linear regression model.
+```{r}
+lmNewData <-lm(Success ~ Years.Up, data = Kestrel_summary)
+autoplot(lmNewData)
+```
+The data looks normally distributed but with some straying at both the lower end and upper end.
+
+View the Summary of my linear model.
+```{r}
+summary(lmNewData)
+```
+And view the ANOVA
+```{r}
+anova(lmNewData)
+```
+
+The results of the summary show that there is a p-value of 0.0991 meaning that there is not a significant correlation between Years Up and Success rate. 
+
+Final plot including a line of best fit
+```{r}
+ggplot(Kestrel_summary, aes(Years.Up, Success))+ 
+         geom_point()+
+         geom_smooth(method = "lm")+
+         xlab("Years Up")+
+         ylab("Percent Successful")
+ 
+```
+This figure shows the linear regression model for the relationship between Percent Successful and Years Up. It shows that the values are not normally distributed along the linear best fit line and that there is not a significant relationship between Percent Successful and Years Up. 
+
+# Hypothesis #2
+
+## Exploring Years Up vs Number of Chicks Banded
+
+Does the amount of years a nest box is up impact the likelihood of chicks being present in the nest box?
+
+Let's generate a scatter plot to look at the initial relationship between the variables.
+```{r}
+ggplot(Kestrel_summary, aes(x = Years.Up, y = Chicks)) + geom_point(size =2)+
+xlab("Years Up") +
+ylab("Number of Chicks Banded")
+
+```
+Based on this figure I would assume that the more years up a box has the more chicks banded.
+
+For this analysis we will use the mean number of chicks banded for each amount of years up. Years Up is a categorical variable, so we will analyze this relationship using a one way anova.
+
+```{r}
+ChickLm <-lm(Chicks ~ Years.Up, data = Kestrel_summary)
+autoplot(ChickLm)
+```
+The data does not appear to be normally distributed, lets look the anova results and the summary results.
+```{r}
+anova(ChickLm)
+```
+```{r}
+summary(ChickLm)
+```
+The results of this one-way anova show that there is no significant relationship between Number of Chicks Banded and Years Up, P= 0.1354. 
+
+For the final plot we will need to get the mean Number of Chicks Banded for each Years Up.
+```{r}
+sumDat<-Kestrel_summary %>% 
+  group_by(Years.Up)%>%
+  summarise(Chicks = mean(Chicks))
+sumDat
+```
+Then plot the data on a scatter plot while highlighting the mean chicks banded for each years up with a larger diamond point.
+```{r}
+ggplot(Kestrel_summary, aes(x = Years.Up, y = Chicks, colour = factor(Years.Up)))+
+  geom_point(size =3, shape = 18)+
+  geom_point(data = sumDat, size = 5, shape = 18)+
+xlab("Years Up") +
+ylab("Number of Chicks Banded")
+```
+
+# Hypothesis #3
+
+# Exploring the relationship betweek number of chicks and success rate.
+
+Does higher number of chicks banded result in a higher success rate for the boxes?
+
+First lets get an initial graph of the relationship
+```{r}
+ggplot(Kestrel_summary, aes(Chicks, Success)) + 
+  geom_point()+
+  ylab("Percent Successful")+
+  xlab("Number of Chicks")
+```
+The graph appears to show that the higher the number of chicks banded, the higher the percent success rate. 
+
+We will test this using a linear regression model.
+```{r}
+ChicksSuccessLm <-lm(Chicks ~ Success, data = Kestrel_summary)
+autoplot(ChicksSuccessLm)
+```
+The data here looks to be normally distributed, however it strays at the top and towards zero.
+```{r}
+anova(ChicksSuccessLm)
+```
+```{r}
+summary(ChicksSuccessLm)
+```
+The results of this one-way anova show that there is a significant relationship between Number of Chicks Banded and Percent Success Rate, P= 3.753e-07. This means that we can reject the null hypothesis that there is no correlation between Number of Chicks Banded and Percent Success Rate.
+
+Lets make a final plot of this. First we will need to find the mean success rate for each amount of chicks banded.
+```{r}
+sumSuccess<-Kestrel_summary %>% 
+  group_by(Chicks)%>%
+  summarise(Success = mean(Success))
+sumSuccess
+```
+Then we will plot the data and add a layer that will plot the mean success rates over top as a larger diamond.
+```{r}
+ggplot(Kestrel_summary, aes(x = Chicks, y = Success, colour = factor(Chicks)))+
+  geom_point(size =3, shape = 18)+
+  geom_point(data = sumSuccess, size = 5, shape = 18)+
+  geom_smooth(method = "lm")+
+xlab("Number of Chicks Banded") +
+ylab("Percent Success")
+```
+This graph shows the steady increase in nest box percent success as number of chicks banded increases. The different amount of chicks banded are each uniquely colored and the mean success rate for each number of chicks is highlighted as a larger diamond. This helps to visualize the positive relationship between percent success and number of chicks banded.
+
