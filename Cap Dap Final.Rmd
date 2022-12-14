@@ -14,6 +14,12 @@ Here are the three hypotheses that I would like to explore for my data analysis 
 
 3. I would like to look at the relationship between number of chicks banded and success rate for the nest boxes. My question is does higher number of chicks banded result in a higher success rate for the boxes? I would hypothesize that nest boxes with a higher number of chicks banded would result in a higher success rate for the boxes.
 
+Citations:
+
+Smallwood, J. A., Causey, M. F., Mossop, D. H., Klucsarits, J. R., Robertson, B., Robertson, S., Mason, J., Maurer, M. J., Melvin, R. J., Dawson, R. D., Bortolotti, G. R., Parrish, J. W., Breen, T. F., &amp; Boyd, K. (2009). Why are American kestrel (Falco sparverius) populations declining in North America? evidence from nest-box programs. Journal of Raptor Research, 43(4), 274–282. https://doi.org/10.3356/jrr-08-83.1 
+
+ J.A. Fargallo , G. Blanco , J. Potti & J. Viñuela (2001) Nestbox provisioning ina rural population of Eurasian Kestrels: breeding performance, nest predation and parasitism,Bird Study, 48:2, 236-244, DOI: 10.1080/00063650109461223
+
 ### Analyzing American Kestrel Nest Box Success
 
 This data set contains data collected by Kealey Viglielmo for a study on American Kestrel nesting box success by Susan Willson, James R. Chandler, Carol Cady, and Mark Manske. The specific data set that I am using contains data of 154 nesting boxes from the years 2002 to 2013. The data contains the number of years the box is up, percent nest success, number of chicks banded, and box inhabitants. 
@@ -240,3 +246,22 @@ ylab("Percent Success")
 ```
 This graph shows the steady increase in nest box percent success as number of chicks banded increases. The different amount of chicks banded are each uniquely colored and the mean success rate for each number of chicks is highlighted as a larger diamond. This helps to visualize the positive relationship between percent success and number of chicks banded.
 
+# Biological Summary
+
+Overall, what I found in this analysis is that there is no significant relationship between number of years up and nest box percent success, or between number of years up and the amount of chicks being present in the nest box. This analysis did however find that there is a significant relationship between number of chicks banded and percent success. 
+
+My first hypothesis was that boxes with more years up would have a higher nest box success rate for kestrels because there would be a longer period of time available for kestrels to nest in the box. The analysis rejected this hypothesis because there was a p-value of 0.0991. This means that there was no significance between nest box success rate and years up, so we can accept the null hypothesis.
+
+My second hypothesis was that boxes with more years up would yield a higher number of chicks banded because there would be more time to for kestrels find and recognize the nest box as a nesting option. My analysis rejected this hypothesis because there was a p-value of 0.1354. This means that there was no significance between number of chicks banded and number of years up a box has, so we can accept the null hypothesis.
+
+My third and final hypothesis was that nest boxes with a higher number of chicks banded would result in a higher success rate for the boxes because if more chicks are banded they have a higher chance of fledging and being successful. My analysis proved that my hypothesis was correct because there was a p value of 3.753e-07. So we can reject the null that there is no significant relationship between number of chicks banded and percent success rate.
+
+# Challenges
+
+I am not very familiar with statistics so the statistical testing portion of the CapDap was definitely challenging for me. Specifically determining which test would be best for my relationships. I had to reread the Getting Started with R book over many times to get an idea of where to go. When that did not help me I would use the internet or ask for help from fellow students in the PQRC. 
+
+Another challenge I encountered was how to display my data in the best way. How I overcame this challenge was again, rereading the textbook and consulting the internet for help.
+
+Lastly, one of my major challenges I found was working with my data set. The data set I chose to work with was very untidy and required a lot of fixing up before I could start any of my analysis. This meant I spent a lot of time reading the book, and using the internet to find different ways to help me adjust my data so that I could effectively plot my relationships and run my tests. 
+
+What I learned from my challenges is that the way you record data is very important. It is important that what you enter is uniform so that there are less issues in R and so that whoever is analyzing it does not have to spend a lot of time tidying up the data. I also learned new functions like "if else" that I did not end up using in my final but was still excited to learn.
